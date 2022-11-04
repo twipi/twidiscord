@@ -55,9 +55,8 @@ func NewEmptyHandler() *Handler {
 }
 
 // NewHandler creates a new handler with the given twipi server and config.
-func NewHandler(twipisrv *twipi.ConfiguredServer, cfg twidiscord.Config, store twidiscord.Storer) *Handler {
+func NewHandler(twipisrv *twipi.ConfiguredServer, cfg twidiscord.Config) *Handler {
 	h := NewEmptyHandler()
-	h.store = store
 	h.config = cfg
 	h.BindTwipi(twipisrv)
 	return h
@@ -114,10 +113,6 @@ func (h *Handler) HandleMessage(ctx context.Context, msg twipi.Message) {
 func (h *Handler) Start(ctx context.Context) error {
 	if h.twipi == nil {
 		return errors.New("twipi server not set")
-	}
-
-	if h.store == nil {
-		return errors.New("store not set")
 	}
 
 	db, err := store.Open(ctx, h.config.Discord.DatabaseURI.String(), false)
