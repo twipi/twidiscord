@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"regexp"
-	"sort"
 	"strconv"
 	"strings"
 
@@ -82,14 +81,10 @@ func (h *Handler) sendUnmute(_ context.Context, src twicli.Message) error {
 }
 
 func (h *Handler) sendSummarize(_ context.Context, src twicli.Message) error {
-	dms, err := h.discord.Cabinet.PrivateChannels()
+	dms, err := h.discord.PrivateChannels()
 	if err != nil {
 		return err
 	}
-
-	sort.Slice(dms, func(i, j int) bool {
-		return dms[i].LastMessageID < dms[j].LastMessageID
-	})
 
 	type unreadChannel struct {
 		discord.Channel

@@ -4,13 +4,13 @@ go 1.19
 
 require (
 	github.com/diamondburned/arikawa/v3 v3.1.1-0.20221103093025-87c479a2dcd4
-	github.com/diamondburned/ningen/v3 v3.0.0-20221103090733-7a4a28dc3043
+	github.com/diamondburned/ningen/v3 v3.0.0-20221104093010-b171e4c76043
 	github.com/diamondburned/tmplutil v0.0.0-20220124221250-5dbe568d9e70
 	github.com/diamondburned/twikit v0.0.0-20221104061513-46b77a3d690b
-	github.com/diamondburned/twikit/cmd v0.0.0-20221104040505-0d6c06b19b85
 	github.com/go-chi/chi/v5 v5.0.7
 	github.com/pkg/errors v0.9.1
 	github.com/yuin/goldmark v1.5.2
+	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	modernc.org/sqlite v1.19.3
 )
 
@@ -29,7 +29,6 @@ require (
 	github.com/twmb/murmur3 v1.1.3 // indirect
 	go4.org v0.0.0-20200411211856-f5505b9728dd // indirect
 	golang.org/x/mod v0.4.2 // indirect
-	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c // indirect
 	golang.org/x/sys v0.0.0-20221010170243-090e33056c14 // indirect
 	golang.org/x/time v0.1.0 // indirect
 	golang.org/x/tools v0.1.1 // indirect

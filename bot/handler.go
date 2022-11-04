@@ -3,7 +3,6 @@ package bot
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 	"runtime"
 	"strings"
@@ -111,8 +110,6 @@ func chName(ch discord.Channel) string {
 	if ch.Name != "" {
 		return ch.Name
 	}
-
-	log.Printf("seeing channel %#v", ch)
 
 	switch len(ch.DMRecipients) {
 	case 0:
