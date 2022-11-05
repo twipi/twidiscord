@@ -4,6 +4,8 @@
 
 package sqlite
 
+import ()
+
 type Account struct {
 	UserNumber   string
 	TwilioNumber string
@@ -19,4 +21,5 @@ type ChannelSerial struct {
 type NumbersMuted struct {
 	UserNumber string
 	Muted      int64
+	Until      int64
 }

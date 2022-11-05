@@ -92,7 +92,9 @@ func (q *Queries) NewChannelSerial(ctx context.Context, arg NewChannelSerialPara
 }
 
 const numberIsMuted = `-- name: NumberIsMuted :one
-SELECT muted FROM numbers_muted WHERE user_number = ? LIMIT 1
+SELECT muted FROM numbers_muted
+	WHERE user_number = ? AND (until = 0 OR until > NOW())
+	LIMIT 1
 `
 
 func (q *Queries) NumberIsMuted(ctx context.Context, userNumber string) (int64, error) {
@@ -134,15 +136,16 @@ func (q *Queries) SetAccount(ctx context.Context, arg SetAccountParams) error {
 }
 
 const setNumberMuted = `-- name: SetNumberMuted :exec
-REPLACE INTO numbers_muted (user_number, muted) VALUES (?, ?)
+REPLACE INTO numbers_muted (user_number, muted, until) VALUES (?, ?, ?)
 `
 
 type SetNumberMutedParams struct {
 	UserNumber string
 	Muted      int64
+	Until      int64
 }
 
 func (q *Queries) SetNumberMuted(ctx context.Context, arg SetNumberMutedParams) error {
-	_, err := q.db.ExecContext(ctx, setNumberMuted, arg.UserNumber, arg.Muted)
+	_, err := q.db.ExecContext(ctx, setNumberMuted, arg.UserNumber, arg.Muted, arg.Until)
 	return err
 }

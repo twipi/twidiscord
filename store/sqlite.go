@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/diamondburned/arikawa/v3/discord"
 	"github.com/diamondburned/twidiscord/store/sqlite"
@@ -171,15 +172,24 @@ func (s *SQLite) NumberIsMuted(ctx context.Context, userNumber twipi.PhoneNumber
 	return v != 0
 }
 
-func (s *SQLite) SetNumberMuted(ctx context.Context, userNumber twipi.PhoneNumber, muted bool) error {
-	var mutedInt64 int64
-	if muted {
-		mutedInt64 = 1
+func (s *SQLite) UnmuteNumber(ctx context.Context, userNumber twipi.PhoneNumber) error {
+	err := s.q.SetNumberMuted(ctx, sqlite.SetNumberMutedParams{
+		UserNumber: string(userNumber),
+		Muted:      0,
+	})
+	return sqliteErr(err)
+}
+
+func (s *SQLite) MuteNumber(ctx context.Context, userNumber twipi.PhoneNumber, until time.Time) error {
+	var untilInt64 int64
+	if !until.IsZero() {
+		untilInt64 = until.Unix()
 	}
 
 	err := s.q.SetNumberMuted(ctx, sqlite.SetNumberMutedParams{
 		UserNumber: string(userNumber),
-		Muted:      mutedInt64,
+		Muted:      1,
+		Until:      untilInt64,
 	})
 	return sqliteErr(err)
 }

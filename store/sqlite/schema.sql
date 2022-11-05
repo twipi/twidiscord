@@ -25,3 +25,7 @@ CREATE TABLE numbers_muted (
 	user_number TEXT PRIMARY KEY REFERENCES accounts(user_number),
 	muted INT NOT NULL DEFAULT 0
 );
+
+-- NEW VERSION --
+
+ALTER TABLE numbers_muted ADD COLUMN until INT NOT NULL DEFAULT 0;

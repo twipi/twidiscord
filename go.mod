@@ -9,6 +9,7 @@ require (
 	github.com/diamondburned/twikit v0.0.0-20221104061513-46b77a3d690b
 	github.com/go-chi/chi/v5 v5.0.7
 	github.com/pkg/errors v0.9.1
+	github.com/xhit/go-str2duration/v2 v2.0.0
 	github.com/yuin/goldmark v1.5.2
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	modernc.org/sqlite v1.19.3

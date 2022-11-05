@@ -6,11 +6,13 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/diamondburned/arikawa/v3/discord"
 	"github.com/diamondburned/twidiscord/twidiscord"
 	"github.com/diamondburned/twikit/twicli"
 	"github.com/pkg/errors"
+	"github.com/xhit/go-str2duration/v2"
 )
 
 // Command implements twid.HandlerCommander.
@@ -57,22 +59,48 @@ func (h *Handler) sendHelp(_ context.Context, src twicli.Message) error {
 		"Discord, message alieb Hello!\n"+
 		"Discord, summarize\n"+
 		"Discord, mute\n"+
+		"Discord, mute for 5h\n"+
 		"Discord, unmute\n"+
 		"Discord, help",
 	)
 }
 
 func (h *Handler) sendMute(_ context.Context, src twicli.Message) error {
-	if err := h.store.SetNumberMuted(h.ctx, h.TwilioNumber, true); err != nil {
+	var until time.Time
+	var duration time.Duration
+
+	if src.Body != "" {
+		if !strings.HasPrefix(src.Body, "for ") {
+			return fmt.Errorf("usage: Discord, mute [for <duration>]")
+		}
+
+		var err error
+		durastr := strings.TrimPrefix(src.Body, "for ")
+
+		duration, err = str2duration.ParseDuration(durastr)
+		if err != nil {
+			return errors.Wrapf(err, "failed to parse duration %q", src.Body)
+		}
+
+		until = time.Now().Add(duration)
+	}
+
+	if err := h.store.MuteNumber(h.ctx, h.TwilioNumber, until); err != nil {
 		return err
 	}
 
-	return h.twipi.Client.ReplySMS(h.ctx, src.Message,
-		"Muted. No more messages will be sent from Discord.")
+	reply := "Muted. No more messages will be sent from Discord"
+	if until.IsZero() {
+		reply += "."
+	} else {
+		reply += " for " + duration.String() + "."
+	}
+
+	return h.twipi.Client.ReplySMS(h.ctx, src.Message, reply)
 }
 
 func (h *Handler) sendUnmute(_ context.Context, src twicli.Message) error {
-	if err := h.store.SetNumberMuted(h.ctx, h.TwilioNumber, false); err != nil {
+	if err := h.store.UnmuteNumber(h.ctx, h.TwilioNumber); err != nil {
 		return err
 	}
 

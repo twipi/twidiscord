@@ -2,6 +2,7 @@ package twidiscord
 
 import (
 	"context"
+	"time"
 
 	"github.com/diamondburned/arikawa/v3/discord"
 	"github.com/diamondburned/twikit/twipi"
@@ -20,7 +21,8 @@ type Storer interface {
 	SecretStorer
 	ChannelStorer
 	NumberIsMuted(context.Context, twipi.PhoneNumber) bool
-	SetNumberMuted(context.Context, twipi.PhoneNumber, bool) error
+	MuteNumber(context.Context, twipi.PhoneNumber, time.Time) error
+	UnmuteNumber(context.Context, twipi.PhoneNumber) error
 }
 
 type SecretStorer interface {
