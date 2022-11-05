@@ -6,7 +6,7 @@ require (
 	github.com/diamondburned/arikawa/v3 v3.1.1-0.20221103093025-87c479a2dcd4
 	github.com/diamondburned/ningen/v3 v3.0.0-20221104093010-b171e4c76043
 	github.com/diamondburned/tmplutil v0.0.0-20220124221250-5dbe568d9e70
-	github.com/diamondburned/twikit v0.0.0-20221104061513-46b77a3d690b
+	github.com/diamondburned/twikit v0.0.0-20221105055113-002d596ad62d
 	github.com/go-chi/chi/v5 v5.0.7
 	github.com/pkg/errors v0.9.1
 	github.com/xhit/go-str2duration/v2 v2.0.0

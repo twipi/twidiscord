@@ -22,7 +22,7 @@ func Mount(
 	r := chi.NewMux()
 	r.Use(middleware.CleanPath)
 	r.Use(tmplutil.AlwaysFlush)
-	r.Mount("/register", newRegisterHandler(twipi, cfg, accountAdder))
+	r.Mount("/discord/register", newRegisterHandler(twipi, cfg, accountAdder))
 
 	return r
 }

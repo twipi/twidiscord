@@ -41,6 +41,8 @@ github.com/diamondburned/tmplutil v0.0.0-20220124221250-5dbe568d9e70 h1:I2It/Pbt
 github.com/diamondburned/tmplutil v0.0.0-20220124221250-5dbe568d9e70/go.mod h1:FBAqurv13gfYH+o5XicjpFgmFPXiqWh52nWY8k5XNt0=
 github.com/diamondburned/twikit v0.0.0-20221104061513-46b77a3d690b h1:2BWCa+NCYVdXjm+0DqBBdPXTcdMIKUGUYxlwc4xj/Lg=
 github.com/diamondburned/twikit v0.0.0-20221104061513-46b77a3d690b/go.mod h1:6PRQf0inevztxOTnRsvjX/nYXeB47dIwIWJ+6nI9/qE=
+github.com/diamondburned/twikit v0.0.0-20221105055113-002d596ad62d h1:8lsTSaoNKnqwSbC+WYtNH7aNPoflf5u3yp268sYLBE4=
+github.com/diamondburned/twikit v0.0.0-20221105055113-002d596ad62d/go.mod h1:6PRQf0inevztxOTnRsvjX/nYXeB47dIwIWJ+6nI9/qE=
 github.com/dustin/go-humanize v1.0.0 h1:VSnTsYCnlFHaM2/igO1h6X3HA71jcobQuxemgkq4zYo=
 github.com/envoyproxy/go-control-plane v0.9.1-0.20191026205805-5f8ba28d4473/go.mod h1:YTl/9mNaCwkRvm6d1a2C3ymFceY/DCBVvsKhRF0iEA4=
 github.com/envoyproxy/protoc-gen-validate v0.1.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7+kN2VEUnK/pcBlmesArF7c=
