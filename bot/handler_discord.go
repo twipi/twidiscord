@@ -100,6 +100,8 @@ func (h *Handler) isValidChannel(chID discord.ChannelID) bool {
 func (h *Handler) isValidMessage(msg *discord.Message) bool {
 	me, _ := h.discord.Cabinet.Me()
 	if me == nil {
+		log := logger.FromContext(h.ctx)
+		log.Println("failed to get self user")
 		return false
 	}
 
