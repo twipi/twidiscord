@@ -3,7 +3,7 @@ module github.com/diamondburned/twidiscord
 go 1.19
 
 require (
-	github.com/diamondburned/arikawa/v3 v3.1.1-0.20221103093025-87c479a2dcd4
+	github.com/diamondburned/arikawa/v3 v3.1.1-0.20221118100916-eb23d43cee3d
 	github.com/diamondburned/ningen/v3 v3.0.0-20221104093010-b171e4c76043
 	github.com/diamondburned/tmplutil v0.0.0-20220124221250-5dbe568d9e70
 	github.com/diamondburned/twikit v0.0.0-20221105055113-002d596ad62d
@@ -29,6 +29,7 @@ require (
 	github.com/twilio/twilio-go v1.1.0 // indirect
 	github.com/twmb/murmur3 v1.1.3 // indirect
 	go4.org v0.0.0-20200411211856-f5505b9728dd // indirect
+	golang.org/x/crypto v0.0.0-20210921155107-089bfa567519 // indirect
 	golang.org/x/mod v0.4.2 // indirect
 	golang.org/x/sys v0.0.0-20221010170243-090e33056c14 // indirect
 	golang.org/x/time v0.1.0 // indirect
