@@ -154,12 +154,20 @@ func (h *Handler) sendMessageIDs(chID discord.ChannelID, ids []discord.MessageID
 		return
 	}
 
-	// Check if we're muted or if we have any existing Discord sessions.
-	if h.hasOtherSessions() || h.store.NumberIsMuted(h.ctx, h.TwilioNumber) {
+	if !h.isValidChannel(chID) {
 		return
 	}
 
-	if !h.isValidChannel(chID) {
+	// Check if we're muted or if we have any existing Discord sessions.
+	if h.hasOtherSessions() {
+		log := logger.FromContext(h.ctx)
+		log.Println("skipping sending messages because there are other sessions")
+		return
+	}
+
+	if h.store.NumberIsMuted(h.ctx, h.TwilioNumber) {
+		log := logger.FromContext(h.ctx)
+		log.Println("skipping sending messages because the number is muted")
 		return
 	}
 
