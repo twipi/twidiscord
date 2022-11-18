@@ -58,7 +58,6 @@ func (h *Handler) sendHelp(_ context.Context, src twicli.Message) error {
 		"Discord, message ^0 the final part\n"+
 		"Discord, message alieb Hello!\n"+
 		"Discord, summarize\n"+
-		"Discord, mute\n"+
 		"Discord, mute for 5h\n"+
 		"Discord, unmute\n"+
 		"Discord, help",
@@ -69,21 +68,19 @@ func (h *Handler) sendMute(_ context.Context, src twicli.Message) error {
 	var until time.Time
 	var duration time.Duration
 
-	if src.Body != "" {
-		if !strings.HasPrefix(src.Body, "for ") {
-			return fmt.Errorf("usage: Discord, mute [for <duration>]")
-		}
-
-		var err error
-		durastr := strings.TrimPrefix(src.Body, "for ")
-
-		duration, err = str2duration.ParseDuration(durastr)
-		if err != nil {
-			return errors.Wrapf(err, "failed to parse duration %q", src.Body)
-		}
-
-		until = time.Now().Add(duration)
+	if !strings.HasPrefix(src.Body, "for ") {
+		return errors.New("you must specify a duration; you cannot mute forever (see help)")
 	}
+
+	var err error
+	durastr := strings.TrimPrefix(src.Body, "for ")
+
+	duration, err = str2duration.ParseDuration(durastr)
+	if err != nil {
+		return errors.Wrapf(err, "failed to parse duration %q", src.Body)
+	}
+
+	until = time.Now().Add(duration)
 
 	if err := h.store.MuteNumber(h.ctx, h.TwilioNumber, until); err != nil {
 		return err
