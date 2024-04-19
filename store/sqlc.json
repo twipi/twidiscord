@@ -1,12 +1,16 @@
 {
-  "version": 1,
-  "packages": [
+  "version": "2",
+  "sql": [
     {
-      "path": "./sqlite",
-      "name": "sqlite",
+      "schema": "store/sqlite/schema.sql",
+      "queries": "store/sqlite/queries.sql",
       "engine": "sqlite",
-      "schema": "./sqlite/schema.sql",
-      "queries": "./sqlite/queries.sql"
+      "gen": {
+        "go": {
+          "package": "queries",
+          "out": "store/sqlite/queries"
+        }
+      }
     }
   ]
 }

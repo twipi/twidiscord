@@ -1,20 +1,18 @@
-let overlay = self: super: {
-	go = super.go_1_19;
-};
+{ pkgs ? import <nixpkgs> {} }:
 
-in { pkgs ? import <nixpkgs> { overlays = [ overlay ]; } }:
+let
+	lib = pkgs.lib;
+in
 
-let lib = pkgs.lib;
-
-in pkgs.mkShell {
-	name = "twikit";
+pkgs.mkShell {
+	name = "twidiscord";
 
 	buildInputs = with pkgs; [
-		go
+		go_1_22
 		gopls
 		gotools
 		sqlc
 	];
 
-	TWIDISCORD_DEBUG = "1";
+	TWIDISCORD_DEBUG = "";
 }

@@ -5,49 +5,48 @@ import (
 	"time"
 
 	"github.com/diamondburned/arikawa/v3/discord"
+	"github.com/puzpuzpuz/xsync/v3"
 )
 
-type messageThrottleConfig struct {
-	max int
-	do  func(discord.ChannelID, []discord.MessageID)
-}
-
 type messageThrottlers struct {
-	m sync.Map
-	c messageThrottleConfig
+	throttlers *xsync.MapOf[discord.ChannelID, *messageThrottler]
+	wg         sync.WaitGroup
+
+	send      func(discord.ChannelID, []discord.MessageID)
+	batchSize int
 }
 
-func newMessageThrottlers(config messageThrottleConfig) *messageThrottlers {
-	return &messageThrottlers{c: config}
+func newMessageThrottlers(batchSize int, send func(discord.ChannelID, []discord.MessageID)) *messageThrottlers {
+	return &messageThrottlers{
+		throttlers: xsync.NewMapOf[discord.ChannelID, *messageThrottler](),
+		send:       send,
+		batchSize:  batchSize,
+	}
 }
 
 func (ts *messageThrottlers) forChannel(id discord.ChannelID) *messageThrottler {
-	v, ok := ts.m.Load(id)
-	if ok {
-		return v.(*messageThrottler)
-	}
-
-	v, _ = ts.m.LoadOrStore(id, newMessageThrottler(ts.c, id))
-	return v.(*messageThrottler)
+	v, _ := ts.throttlers.LoadOrCompute(id, func() *messageThrottler {
+		return newMessageThrottler(ts, id)
+	})
+	return v
 }
 
 type messageThrottler struct {
+	*messageThrottlers
 	queue   []discord.MessageID
 	queueMu sync.Mutex
-
-	timer struct {
+	timer   struct {
 		sync.Mutex
 		reset chan time.Duration
 	}
 
-	config messageThrottleConfig
-	chID   discord.ChannelID
+	chID discord.ChannelID
 }
 
-func newMessageThrottler(config messageThrottleConfig, chID discord.ChannelID) *messageThrottler {
+func newMessageThrottler(ts *messageThrottlers, chID discord.ChannelID) *messageThrottler {
 	return &messageThrottler{
-		config: config,
-		chID:   chID,
+		messageThrottlers: ts,
+		chID:              chID,
 	}
 }
 
@@ -59,7 +58,7 @@ func (t *messageThrottler) AddMessage(id discord.MessageID, delayDuration time.D
 	t.queueMu.Lock()
 	// Check for overflowing queue. If we overflow, then we'll send them off
 	// right away.
-	if len(t.queue) >= t.config.max {
+	if len(t.queue) >= t.batchSize {
 		overflow = t.queue
 		t.queue = []discord.MessageID{id}
 	} else {
@@ -70,7 +69,11 @@ func (t *messageThrottler) AddMessage(id discord.MessageID, delayDuration time.D
 	t.tryStartJob(delayDuration)
 
 	if len(overflow) > 0 {
-		go t.config.do(t.chID, overflow)
+		t.wg.Add(1)
+		go func() {
+			t.send(t.chID, overflow)
+			t.wg.Done()
+		}()
 	}
 }
 
@@ -109,7 +112,10 @@ func (t *messageThrottler) tryStartJob(delay time.Duration) {
 		// goroutine with the current delay.
 	}
 
+	t.wg.Add(1)
 	go func() {
+		defer t.wg.Done()
+
 		timer := time.NewTimer(delay)
 		for {
 			select {
@@ -127,7 +133,7 @@ func (t *messageThrottler) tryStartJob(delay time.Duration) {
 				t.queueMu.Unlock()
 
 				// Do the action.
-				t.config.do(t.chID, queue)
+				t.send(t.chID, queue)
 				return
 			}
 		}

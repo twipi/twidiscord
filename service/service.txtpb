@@ -1,0 +1,116 @@
+name: "discord"
+description: "SMS Gateway for Discord"
+
+commands {
+  name: "message"
+  description: "Send a message to a Discord channel"
+
+  argument_positions: ["channel" "message"]
+  argument_trailing: true
+
+  arguments {
+    key: "channel"
+    value {
+      description: "The nickname or person name to send the message to"
+      required: true
+      hint: COMMAND_ARGUMENT_HINT_STRING
+    }
+  }
+
+  arguments {
+    key: "message"
+    value {
+      description: "The message to send"
+      required: true
+      hint: COMMAND_ARGUMENT_HINT_STRING
+    }
+  }
+}
+
+commands {
+  name: "nick"
+  description: "Give a friend a nickname for messaging"
+
+  argument_positions: ["channel" "nickname"]
+  argument_trailing: true
+
+  arguments {
+    key: "channel"
+    value {
+      description: "The nickname or person name to give a nickname to, or ^0 (^n) to reference the channel from the internal ID"
+      required: true
+      hint: COMMAND_ARGUMENT_HINT_STRING
+    }
+  }
+
+  arguments {
+    key: "nickname"
+    value {
+      description: "The nickname to give"
+      required: true
+      hint: COMMAND_ARGUMENT_HINT_STRING
+    }
+  }
+}
+
+commands {
+  name: "guild_nick"
+  description: "Give a channel in a guild a nickname for messaging"
+
+  argument_positions: ["guild" "channel" "nickname"]
+  argument_trailing: true
+
+  arguments {
+    key: "guild"
+    value {
+      description: "The guild to give a channel nickname to"
+      required: true
+      hint: COMMAND_ARGUMENT_HINT_STRING
+    }
+  }
+
+  arguments {
+    key: "channel"
+    value {
+      description: "The channel to give a nickname to"
+      required: true
+      hint: COMMAND_ARGUMENT_HINT_STRING
+    }
+  }
+
+  arguments {
+    key: "nickname"
+    value {
+      description: "The nickname to give"
+      required: true
+      hint: COMMAND_ARGUMENT_HINT_STRING
+    }
+  }
+}
+
+commands {
+  name: "mute"
+  description: "Mute notifications for a period of time"
+
+  argument_positions: ["duration"]
+  argument_trailing: true
+
+  arguments {
+    key: "duration"
+    value {
+      description: "The duration to mute notifications for"
+      required: true
+      hint: COMMAND_ARGUMENT_HINT_DURATION
+    }
+  }
+}
+
+commands {
+  name: "unmute"
+  description: "Unmute notifications"
+}
+
+commands {
+  name: "notifications"
+  description: "Show the count of unread notifications"
+}

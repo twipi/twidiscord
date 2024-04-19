@@ -2,18 +2,17 @@ package bot
 
 import (
 	"context"
-	"fmt"
+	"log/slog"
 	"os"
 	"runtime"
-	"strings"
 	"sync"
+	"sync/atomic"
 
 	"github.com/diamondburned/arikawa/v3/discord"
 	"github.com/diamondburned/arikawa/v3/gateway"
 	"github.com/diamondburned/ningen/v3"
-	"github.com/diamondburned/twidiscord/twidiscord"
-	"github.com/diamondburned/twikit/twicli"
-	"github.com/diamondburned/twikit/twipi"
+	"github.com/diamondburned/twidiscord/store"
+	"github.com/twipi/twipi/twisms"
 )
 
 var hostname string
@@ -27,35 +26,33 @@ func init() {
 	}
 }
 
-// Handler is a handler for a single Discord account.
-type Handler struct {
-	twidiscord.Account
-	twipi   *twipi.ConfiguredServer
-	discord *ningen.State
-	config  twidiscord.Config
-	store   twidiscord.Storer
+// Session is a Discord SMS gateway session.
+type Session struct {
+	Account store.Account
 
-	fragmentMu sync.Mutex
-	fragments  map[string]messageFragment
+	sms     twisms.MessageSender
+	store   store.AccountStore
+	discord *ningen.State
+
+	logger   *slog.Logger
+	logAttrs atomic.Pointer[slog.Attr]
 
 	sessions struct {
 		sync.Mutex
 		ourID    string
 		sessions []gateway.UserSession
 	}
-
-	messageThrottlers messageThrottlers
-
-	ctx context.Context
-	cmd twicli.Command
+	throttlers *messageThrottlers
 }
 
 type messageFragment struct {
 	content string
 }
 
-// NewHandler creates a new AccountHandler.
-func NewHandler(twipisrv *twipi.ConfiguredServer, account twidiscord.Account, cfg twidiscord.Config, store twidiscord.Storer) *Handler {
+// NewSession creates a new session.
+func NewSession(store store.AccountStore, sms twisms.MessageSender, logger *slog.Logger) *Session {
+	account := store.Account()
+
 	id := gateway.DefaultIdentifier(account.DiscordToken)
 	id.Capabilities = 253 // magic constant from reverse-engineering
 	id.Presence = &gateway.UpdatePresenceCommand{
@@ -64,68 +61,38 @@ func NewHandler(twipisrv *twipi.ConfiguredServer, account twidiscord.Account, cf
 	}
 	id.Properties = gateway.IdentifyProperties{
 		OS:      runtime.GOOS,
-		Device:  fmt.Sprintf("twikit/%s", hostname),
+		Device:  "twipi/" + hostname,
 		Browser: "twidiscord",
 	}
 
-	h := &Handler{
-		Account:   account,
-		twipi:     twipisrv,
-		discord:   ningen.NewWithIdentifier(id),
-		config:    cfg,
-		store:     store,
-		fragments: make(map[string]messageFragment),
-		ctx:       context.Background(),
+	logger = logger.With(
+		"user_number", account.UserNumber,
+		"server_number", account.ServerNumber)
+
+	s := &Session{
+		Account: account,
+		sms:     sms,
+		store:   store,
+		logger:  logger,
+		discord: ningen.NewWithIdentifier(id),
 	}
 
-	h.bindDiscord()
-	h.initCommand()
+	emptyGroup := slog.Group("user")
+	s.logAttrs.Store(&emptyGroup)
 
-	h.messageThrottlers = *newMessageThrottlers(messageThrottleConfig{
-		max: 15,
-		do:  h.sendMessageIDs,
-	})
-
-	return h
+	return s
 }
 
-// UseContext sets the context for this handler.
-func (h *Handler) UseContext(ctx context.Context) {
-	h.ctx = ctx
-	h.discord = h.discord.WithContext(ctx)
-}
+// Start starts the handler.
+func (s *Session) Start(ctx context.Context) error {
+	s.discord = s.discord.WithContext(ctx)
+	s.bindDiscord()
 
-// Context returns the context of this handler.
-func (h *Handler) Context() context.Context {
-	return h.ctx
-}
+	s.throttlers = newMessageThrottlers(15,
+		func(chID discord.ChannelID, ids []discord.MessageID) {
+			s.sendMessageIDs(ctx, chID, ids)
+		},
+	)
 
-// Connect stays connected for as long as the context set with UseContext
-// remains valid.
-func (h *Handler) Connect() error {
-	return h.discord.Connect(h.ctx)
-}
-
-func chName(ch discord.Channel) string {
-	if ch.Name != "" {
-		return ch.Name
-	}
-
-	switch len(ch.DMRecipients) {
-	case 0:
-		return ch.ID.Mention()
-	case 1:
-		return ch.DMRecipients[0].Username
-	default:
-		var buf string
-		for i := 0; i < len(ch.DMRecipients) && i < 3; i++ {
-			buf += ch.DMRecipients[i].Username + ", "
-		}
-		if len(ch.DMRecipients) > 3 {
-			buf += "..."
-		} else {
-			buf = strings.TrimSuffix(buf, ", ")
-		}
-		return buf
-	}
+	return s.discord.Connect(ctx)
 }

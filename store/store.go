@@ -2,15 +2,50 @@ package store
 
 import (
 	"context"
-	"io"
-	"log"
-	"net/url"
+	"errors"
+	"time"
 
-	"github.com/diamondburned/twidiscord/twidiscord"
-	"github.com/pkg/errors"
+	"github.com/diamondburned/arikawa/v3/discord"
 )
 
-//go:generate sqlc generate
+// ErrNotFound is returned by stores in case of a not found error.
+var ErrNotFound = errors.New("not found")
+
+type PhoneNumber = string
+
+type Store interface {
+	// Account returns an account store by its phone number.
+	Account(context.Context, PhoneNumber) (AccountStore, error)
+	// Accounts returns all accounts.
+	Accounts(context.Context) ([]Account, error)
+	// SetAccount sets an account.
+	SetAccount(context.Context, Account) error
+}
+
+type AccountStore interface {
+	// Account returns the account that the store is associated with.
+	Account() Account
+
+	// NumberIsMuted returns whether a number is muted or not.
+	NumberIsMuted(context.Context) bool
+	// MuteNumber mutes a number until the given time.
+	MuteNumber(context.Context, time.Time) error
+	// UnmuteNumber unmutes a number.
+	UnmuteNumber(context.Context) error
+
+	// ChannelNickname returns the nickname of a channel.
+	ChannelNickname(context.Context, discord.ChannelID) (string, error)
+	// ChannelFromNickname returns the channel ID from a nickname.
+	ChannelFromNickname(context.Context, string) (discord.ChannelID, error)
+	// SetChannelNickname sets the nickname of a channel.
+	SetChannelNickname(context.Context, discord.ChannelID, string) error
+}
+
+type Account struct {
+	UserNumber   PhoneNumber // key
+	ServerNumber PhoneNumber
+	DiscordToken string
+}
 
 // InternalError is returned by stores in case of an internal error.
 type InternalError struct {
@@ -23,36 +58,4 @@ func (e InternalError) Error() string {
 
 func (e InternalError) Unwrap() error {
 	return e.Err
-}
-
-// Open opens a new Storer. The returned Storer must be closed after use.
-//
-// The following schemes are supported:
-//
-// 	- sqlite
-//
-func Open(ctx context.Context, urlStr string, ro bool) (twidiscord.Storer, error) {
-	u, err := url.Parse(urlStr)
-	if err != nil {
-		return nil, errors.Wrap(err, "failed to parse database URL")
-	}
-
-	switch u.Scheme {
-	case "sqlite":
-		u.Scheme = "file"
-		u.Path = u.Host + u.Path
-		u.Host = ""
-		return OpenSQLite(ctx, u.String(), ro)
-	default:
-		return nil, errors.Errorf("unknown database scheme %q", u.Scheme)
-	}
-}
-
-// Close closes v if it implements io.Closer.
-func Close(v any) {
-	if c, ok := v.(io.Closer); ok {
-		if err := c.Close(); err != nil {
-			log.Println("twidiscord: store: failed to close:", err)
-		}
-	}
 }

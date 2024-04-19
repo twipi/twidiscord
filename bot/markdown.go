@@ -2,16 +2,18 @@ package bot
 
 import (
 	"context"
+	"log/slog"
 	"strings"
 
 	"github.com/diamondburned/arikawa/v3/discord"
 	"github.com/diamondburned/ningen/v3"
 	"github.com/diamondburned/ningen/v3/discordmd"
-	"github.com/diamondburned/twikit/logger"
 	"github.com/yuin/goldmark/ast"
 )
 
-func renderText(ctx context.Context,
+func renderText(
+	ctx context.Context,
+	logger *slog.Logger,
 	state *ningen.State, body string, srcMessage *discord.Message) string {
 
 	src := []byte(body)
@@ -90,8 +92,11 @@ func renderText(ctx context.Context,
 	}
 
 	if err := ast.Walk(n, walk); err != nil {
-		log := logger.FromContext(ctx, "markdown")
-		log.Println("cannot walk:", err)
+		logger.Warn(
+			"cannot walk message's AST, using raw content",
+			"message_id", srcMessage.ID,
+			"body", body,
+			"err", err)
 		return string(src)
 	}
 
