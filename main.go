@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"net/http"
 	"os"
 	"os/signal"
 	"path/filepath"
@@ -69,11 +70,15 @@ func main() {
 	})
 
 	errg.Go(func() error {
+		r := http.NewServeMux()
+		r.Handle("GET /health", http.HandlerFunc(healthCheck))
+		r.Handle("/", handler)
+
 		logger.Info(
 			"listening via HTTP",
 			"addr", listenAddr)
 
-		if err := hserve.ListenAndServe(ctx, listenAddr, handler); err != nil {
+		if err := hserve.ListenAndServe(ctx, listenAddr, r); err != nil {
 			logger.Error(
 				"failed to listen and serve",
 				"err", err)
@@ -89,4 +94,8 @@ func main() {
 			"err", err)
 		os.Exit(1)
 	}
+}
+
+func healthCheck(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
 }

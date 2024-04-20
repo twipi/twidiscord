@@ -113,6 +113,10 @@ func (s *Service) Start(ctx context.Context) error {
 		return s.sendSub.Listen(ctx, s.sendCh)
 	})
 
+	s.logger.Info(
+		"opening SQLite database",
+		"path", s.sqlitePath)
+
 	db, err := sqlite.New(ctx, s.sqlitePath)
 	if err != nil {
 		return errors.Wrap(err, "failed to open database")
