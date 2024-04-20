@@ -1,6 +1,3 @@
-PRAGMA strict = ON;
-PRAGMA journal_mode = WAL;
-
 CREATE TABLE accounts (
 	user_number TEXT PRIMARY KEY,
 	server_number TEXT NOT NULL,

@@ -11,8 +11,11 @@ import (
 	"strings"
 
 	"github.com/diamondburned/twidiscord/service"
+	"github.com/diamondburned/twidiscord/store"
+	"github.com/diamondburned/twidiscord/store/sqlite"
 	"github.com/spf13/pflag"
 	"github.com/twipi/twipi/twicmd/httpservice"
+	"github.com/twipi/twipi/twisms"
 	"golang.org/x/sync/errgroup"
 	"libdb.so/hserve"
 )
@@ -48,14 +51,84 @@ func init() {
 }
 
 func main() {
-	logger := slog.Default()
+	switch pflag.Arg(0) {
+	case "add-account", "":
+		ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
+		defer cancel()
 
-	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
-	defer cancel()
+		logger := slog.Default()
 
+		db, err := sqlite.New(ctx, sqlitePath)
+		if err != nil {
+			logger.Error(
+				"failed to open SQLite database",
+				"sqlite_path", sqlitePath,
+				"err", err)
+			os.Exit(1)
+		}
+		defer db.Close()
+
+		var status int
+		switch pflag.Arg(0) {
+		case "add-account":
+			status = addAccount(ctx, db, logger, pflag.Args()[1:]...)
+		case "":
+			status = start(ctx, db, logger)
+		}
+
+		db.Close()
+		os.Exit(status)
+
+	default:
+		pflag.Usage()
+		os.Exit(1)
+	}
+}
+
+func addAccount(ctx context.Context, db store.Store, logger *slog.Logger, args ...string) int {
+	if len(args) != 3 {
+		pflag.Usage()
+		return 1
+	}
+
+	account := store.Account{
+		UserNumber:   args[0],
+		ServerNumber: args[1],
+		DiscordToken: args[2],
+	}
+
+	if err := twisms.ValidatePhoneNumber(account.UserNumber); err != nil {
+		logger.Error(
+			"invalid user number",
+			"user_number", account.UserNumber,
+			"err", err)
+		return 1
+	}
+
+	if err := twisms.ValidatePhoneNumber(account.ServerNumber); err != nil {
+		logger.Error(
+			"invalid server number",
+			"server_number", account.ServerNumber,
+			"err", err)
+		return 1
+	}
+
+	if err := db.SetAccount(ctx, account); err != nil {
+		logger.Error(
+			"failed to add account to database",
+			"account", account,
+			"err", err)
+		return 1
+	}
+
+	logger.Info("added account to database")
+	return 0
+}
+
+func start(ctx context.Context, db store.Store, logger *slog.Logger) int {
 	errg, ctx := errgroup.WithContext(ctx)
 
-	svc := service.NewService(sqlitePath, logger)
+	svc := service.NewService(db, logger)
 	errg.Go(func() error { return svc.Start(ctx) })
 
 	handler := httpservice.NewHTTPServer(svc, logger.With("component", "http"))
@@ -92,8 +165,10 @@ func main() {
 		logger.Error(
 			"service error",
 			"err", err)
-		os.Exit(1)
+		return 1
 	}
+
+	return 0
 }
 
 func healthCheck(w http.ResponseWriter, r *http.Request) {

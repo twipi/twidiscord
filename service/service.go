@@ -9,7 +9,6 @@ import (
 
 	"github.com/diamondburned/twidiscord/bot"
 	"github.com/diamondburned/twidiscord/store"
-	"github.com/diamondburned/twidiscord/store/sqlite"
 	"github.com/pkg/errors"
 	"github.com/puzpuzpuz/xsync/v3"
 	"github.com/twipi/pubsub"
@@ -34,12 +33,12 @@ var service = (func() *twicmdproto.Service {
 
 // Service is the main handler that binds Twipi and Discord.
 type Service struct {
-	accCh      chan store.Account
-	sendCh     chan *twismsproto.Message
-	sendSub    pubsub.Subscriber[*twismsproto.Message]
-	knownBots  *xsync.MapOf[string, startedBot]
-	logger     *slog.Logger
-	sqlitePath string
+	store     store.Store
+	accCh     chan store.Account
+	sendCh    chan *twismsproto.Message
+	sendSub   pubsub.Subscriber[*twismsproto.Message]
+	knownBots *xsync.MapOf[string, startedBot]
+	logger    *slog.Logger
 }
 
 type startedBot struct {
@@ -53,13 +52,13 @@ var (
 )
 
 // NewService creates a new handler with the given twipi server and config.
-func NewService(sqlitePath string, logger *slog.Logger) *Service {
+func NewService(s store.Store, logger *slog.Logger) *Service {
 	return &Service{
-		accCh:      make(chan store.Account),
-		sendCh:     make(chan *twismsproto.Message),
-		knownBots:  xsync.NewMapOf[string, startedBot](),
-		logger:     logger,
-		sqlitePath: sqlitePath,
+		store:     s,
+		accCh:     make(chan store.Account),
+		sendCh:    make(chan *twismsproto.Message),
+		knownBots: xsync.NewMapOf[string, startedBot](),
+		logger:    logger,
 	}
 }
 
@@ -113,16 +112,6 @@ func (s *Service) Start(ctx context.Context) error {
 		return s.sendSub.Listen(ctx, s.sendCh)
 	})
 
-	s.logger.Info(
-		"opening SQLite database",
-		"path", s.sqlitePath)
-
-	db, err := sqlite.New(ctx, s.sqlitePath)
-	if err != nil {
-		return errors.Wrap(err, "failed to open database")
-	}
-	defer db.Close()
-
 	errg.Go(func() error {
 		for {
 			var account store.Account
@@ -136,7 +125,7 @@ func (s *Service) Start(ctx context.Context) error {
 				oldBot.stop()
 			}
 
-			accountStore, err := db.Account(ctx, account.UserNumber)
+			accountStore, err := s.store.Account(ctx, account.UserNumber)
 			if err != nil {
 				s.logger.Error(
 					"failed to load account from database",
@@ -165,7 +154,7 @@ func (s *Service) Start(ctx context.Context) error {
 	})
 
 	errg.Go(func() error {
-		accounts, err := db.Accounts(ctx)
+		accounts, err := s.store.Accounts(ctx)
 		if err != nil {
 			return errors.Wrap(err, "failed to load accounts")
 		}

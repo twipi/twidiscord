@@ -19,6 +19,11 @@ import (
 //go:embed schema.sql
 var sqliteSchema string
 
+const pragma = `
+PRAGMA strict = ON;
+PRAGMA journal_mode = WAL;
+`
+
 // SQLite is a SQLite database.
 type SQLite struct {
 	q  *queries.Queries
@@ -32,6 +37,10 @@ func New(ctx context.Context, uri string) (*SQLite, error) {
 	sqlDB, err := sql.Open("sqlite", uri)
 	if err != nil {
 		return nil, errors.Wrap(err, "failed to open SQLite database")
+	}
+
+	if _, err := sqlDB.ExecContext(ctx, pragma); err != nil {
+		return nil, errors.Wrap(err, "failed to set SQLite pragmas")
 	}
 
 	if err := lazymigrate.Migrate(ctx, sqlDB, sqliteSchema); err != nil {
