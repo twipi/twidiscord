@@ -5,7 +5,7 @@ commands {
   name: "message"
   description: "Send a message to a Discord channel"
 
-  argument_positions: ["channel" "message"]
+  argument_positions: ["channel", "message"]
   argument_trailing: true
 
   arguments {
@@ -31,7 +31,7 @@ commands {
   name: "nick"
   description: "Give a friend a nickname for messaging"
 
-  argument_positions: ["channel" "nickname"]
+  argument_positions: ["channel", "nickname"]
   argument_trailing: true
 
   arguments {
@@ -57,7 +57,7 @@ commands {
   name: "guild_nick"
   description: "Give a channel in a guild a nickname for messaging"
 
-  argument_positions: ["guild" "channel" "nickname"]
+  argument_positions: ["guild", "channel", "nickname"]
   argument_trailing: true
 
   arguments {
