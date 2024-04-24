@@ -28,11 +28,11 @@ func init() {
 
 // Session is a Discord SMS gateway session.
 type Session struct {
+	*ningen.State
 	Account store.Account
 
-	sms     twisms.MessageSender
-	store   store.AccountStore
-	discord *ningen.State
+	sms   twisms.MessageSender
+	store store.AccountStore
 
 	logger   *slog.Logger
 	logAttrs atomic.Pointer[slog.Attr]
@@ -69,12 +69,13 @@ func NewSession(store store.AccountStore, sms twisms.MessageSender, logger *slog
 		"user_number", account.UserNumber,
 		"server_number", account.ServerNumber)
 
+	state := ningen.NewWithIdentifier(id)
 	s := &Session{
+		State:   state,
 		Account: account,
 		sms:     sms,
 		store:   store,
 		logger:  logger,
-		discord: ningen.NewWithIdentifier(id),
 	}
 
 	emptyGroup := slog.Group("user")
@@ -85,7 +86,7 @@ func NewSession(store store.AccountStore, sms twisms.MessageSender, logger *slog
 
 // Start starts the handler.
 func (s *Session) Start(ctx context.Context) error {
-	s.discord = s.discord.WithContext(ctx)
+	s.State = s.State.WithContext(ctx)
 	s.bindDiscord()
 
 	s.throttlers = newMessageThrottlers(15,
@@ -96,5 +97,5 @@ func (s *Session) Start(ctx context.Context) error {
 	)
 	defer s.throttlers.wg.Wait()
 
-	return s.discord.Connect(ctx)
+	return s.State.Connect(ctx)
 }

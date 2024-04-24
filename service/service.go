@@ -12,6 +12,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/puzpuzpuz/xsync/v3"
 	"github.com/twipi/pubsub"
+	"github.com/twipi/twipi/proto/out/twicmdcfgpb"
 	"github.com/twipi/twipi/proto/out/twicmdproto"
 	"github.com/twipi/twipi/proto/out/twismsproto"
 	"github.com/twipi/twipi/twicmd"
@@ -47,8 +48,9 @@ type startedBot struct {
 }
 
 var (
-	_ twicmd.Service           = (*Service)(nil)
-	_ twisms.MessageSubscriber = (*Service)(nil)
+	_ twicmd.Service             = (*Service)(nil)
+	_ twicmd.ConfigurableService = (*Service)(nil)
+	_ twisms.MessageSubscriber   = (*Service)(nil)
 )
 
 // NewService creates a new handler with the given twipi server and config.
@@ -206,4 +208,26 @@ func (s *Service) SendMessage(ctx context.Context, msg *twismsproto.Message) err
 	case s.sendCh <- msg:
 		return nil
 	}
+}
+
+// ConfigurationValues implements [twicmd.ConfigurableService].
+func (s *Service) ConfigurationValues(ctx context.Context, req *twicmdcfgpb.OptionsRequest) (*twicmdcfgpb.OptionsResponse, error) {
+	values := make([]*twicmdcfgpb.OptionValue, 0)
+	for _, opt := range optionFuncs {
+		v, err := opt(s, ctx, req.PhoneNumber)
+		if err != nil {
+			s.logger.Error(
+				"failed to get configuration value",
+				"user_number", req.PhoneNumber,
+				"err", err)
+			return nil, errors.New("failed to get configuration value")
+		}
+		values = append(values, v)
+	}
+	return &twicmdcfgpb.OptionsResponse{Values: values}, nil
+}
+
+// ApplyConfigurationValues implements [twicmd.ConfigurableService].
+func (s *Service) ApplyConfigurationValues(context.Context, *twicmdcfgpb.ApplyRequest) (*twicmdcfgpb.ApplyResponse, error) {
+	return nil, fmt.Errorf("not implemented")
 }

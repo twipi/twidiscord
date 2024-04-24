@@ -35,6 +35,8 @@ type AccountStore interface {
 
 	// ChannelNickname returns the nickname of a channel.
 	ChannelNickname(context.Context, discord.ChannelID) (string, error)
+	// ChannelNicknames returns all channel nicknames.
+	ChannelNicknames(context.Context) (map[discord.ChannelID]string, error)
 	// ChannelFromNickname returns the channel ID from a nickname.
 	ChannelFromNickname(context.Context, string) (discord.ChannelID, error)
 	// SetChannelNickname sets the nickname of a channel.

@@ -18,6 +18,9 @@ REPLACE INTO numbers_muted (user_number, muted, until) VALUES (?, ?, ?);
 -- name: ChannelNickname :one
 SELECT nickname FROM channel_nicknames WHERE user_number = ? AND channel_id = ? LIMIT 1;
 
+-- name: ChannelNicknames :many
+SELECT channel_id, nickname FROM channel_nicknames WHERE user_number = ?;
+
 -- name: ChannelFromNickname :one
 SELECT channel_id FROM channel_nicknames WHERE user_number = ? AND nickname = ? LIMIT 1;
 

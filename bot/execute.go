@@ -48,12 +48,12 @@ func (s *Session) internalErrorResponse(req *twicmdproto.ExecuteRequest, err err
 func (s *Session) executeMessage(ctx context.Context, req *twicmdproto.ExecuteRequest) *twicmdproto.ExecuteResponse {
 	args := twicmd.MapArguments(req.Command.Arguments)
 
-	r, err := searchChannel(ctx, s.discord, s.store, "", args["channel"])
+	r, err := searchChannel(ctx, s.State, s.store, "", args["channel"])
 	if err != nil {
 		return twicmd.StatusResponse(err.Error())
 	}
 
-	_, err = s.discord.SendMessage(r.Channel.ID, args["message"])
+	_, err = s.State.SendMessage(r.Channel.ID, args["message"])
 	if err != nil {
 		return s.internalErrorResponse(req, err)
 	}
@@ -64,7 +64,7 @@ func (s *Session) executeMessage(ctx context.Context, req *twicmdproto.ExecuteRe
 func (s *Session) executeNick(ctx context.Context, req *twicmdproto.ExecuteRequest) *twicmdproto.ExecuteResponse {
 	args := twicmd.MapArguments(req.Command.Arguments)
 
-	r, err := searchChannel(ctx, s.discord, s.store, "", args["channel"])
+	r, err := searchChannel(ctx, s.State, s.store, "", args["channel"])
 	if err != nil {
 		return twicmd.StatusResponse(err.Error())
 	}
@@ -85,7 +85,7 @@ func (s *Session) executeGuildNick(ctx context.Context, req *twicmdproto.Execute
 		return twicmd.StatusResponse("you must specify a guild")
 	}
 
-	r, err := searchChannel(ctx, s.discord, s.store, args["guild"], args["channel"])
+	r, err := searchChannel(ctx, s.State, s.store, args["guild"], args["channel"])
 	if err != nil {
 		return twicmd.StatusResponse(err.Error())
 	}
@@ -132,7 +132,7 @@ func (s *Session) executeUnmute(ctx context.Context, req *twicmdproto.ExecuteReq
 }
 
 func (s *Session) executeNotifications(_ context.Context, req *twicmdproto.ExecuteRequest) *twicmdproto.ExecuteResponse {
-	dms, err := s.discord.Cabinet.PrivateChannels()
+	dms, err := s.State.Cabinet.PrivateChannels()
 	if err != nil {
 		return s.internalErrorResponse(req, err)
 	}
@@ -145,11 +145,11 @@ func (s *Session) executeNotifications(_ context.Context, req *twicmdproto.Execu
 	var unreads []unreadChannel
 
 	for _, dm := range dms {
-		if s.discord.ChannelIsMuted(dm.ID, true) {
+		if s.State.ChannelIsMuted(dm.ID, true) {
 			continue
 		}
 
-		count := s.discord.ChannelCountUnreads(dm.ID)
+		count := s.State.ChannelCountUnreads(dm.ID)
 		if count > 0 {
 			unreads = append(unreads, unreadChannel{
 				Channel:     dm,

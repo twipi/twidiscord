@@ -2,13 +2,13 @@
   "version": "2",
   "sql": [
     {
-      "schema": "store/sqlite/schema.sql",
-      "queries": "store/sqlite/queries.sql",
+      "schema": "sqlite/schema.sql",
+      "queries": "sqlite/queries.sql",
       "engine": "sqlite",
       "gen": {
         "go": {
           "package": "queries",
-          "out": "store/sqlite/queries"
+          "out": "sqlite/queries"
         }
       }
     }

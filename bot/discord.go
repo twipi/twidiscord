@@ -18,12 +18,12 @@ import (
 )
 
 func (s *Session) bindDiscord() {
-	s.discord.AddHandler(s.onMessageCreate)
-	s.discord.AddHandler(s.onMessageUpdate)
-	s.discord.AddHandler(s.onTypingStart)
+	s.State.AddHandler(s.onMessageCreate)
+	s.State.AddHandler(s.onMessageUpdate)
+	s.State.AddHandler(s.onTypingStart)
 
-	s.discord.AddHandler(func(r *gateway.ReadyEvent) {
-		me, _ := s.discord.Me()
+	s.State.AddHandler(func(r *gateway.ReadyEvent) {
+		me, _ := s.State.Me()
 
 		s.sessions.Lock()
 		s.sessions.sessions = r.Sessions
@@ -41,21 +41,21 @@ func (s *Session) bindDiscord() {
 			*s.logAttrs.Load())
 	})
 
-	s.discord.AddHandler(func(ev *ws.CloseEvent) {
+	s.State.AddHandler(func(ev *ws.CloseEvent) {
 		s.logger.Warn(
 			"disconnected from Discord",
 			"code", ev.Code,
 			*s.logAttrs.Load())
 	})
 
-	s.discord.AddHandler(func(err error) {
+	s.State.AddHandler(func(err error) {
 		s.logger.Error(
 			"non-fatal error from Discord",
 			"err", err,
 			*s.logAttrs.Load())
 	})
 
-	s.discord.AddHandler(func(sessions *gateway.SessionsReplaceEvent) {
+	s.State.AddHandler(func(sessions *gateway.SessionsReplaceEvent) {
 		s.sessions.Lock()
 		s.sessions.sessions = []gateway.UserSession(*sessions)
 		s.sessions.Unlock()
@@ -73,7 +73,7 @@ func (s *Session) bindDiscordDebug() {
 	os.MkdirAll("/tmp/twidiscord-events", os.ModePerm)
 
 	var serial uint64
-	s.discord.AddHandler(func(ev *ws.RawEvent) {
+	s.State.AddHandler(func(ev *ws.RawEvent) {
 		b, err := json.Marshal(ev)
 		if err != nil {
 			return
@@ -105,11 +105,11 @@ func (s *Session) hasOtherSessions() bool {
 
 func (s *Session) isValidChannel(chID discord.ChannelID) bool {
 	// Check if the channel is muted. Ignore muted channels.
-	return !s.discord.ChannelIsMuted(chID, true)
+	return !s.State.ChannelIsMuted(chID, true)
 }
 
 func (s *Session) isValidMessage(msg *discord.Message) bool {
-	me, err := s.discord.Cabinet.Me()
+	me, err := s.State.Cabinet.Me()
 	if me == nil {
 		s.logger.Error(
 			"failed to get self user",
@@ -125,7 +125,7 @@ func (s *Session) isValidMessage(msg *discord.Message) bool {
 
 	// If the message is from a guild, ignore it if the message didn't actually
 	// mention us.
-	if msg.GuildID.IsValid() && s.discord.MessageMentions(msg)&ningen.MessageNotifies == 0 {
+	if msg.GuildID.IsValid() && s.State.MessageMentions(msg)&ningen.MessageNotifies == 0 {
 		return false
 	}
 
@@ -146,7 +146,7 @@ func (s *Session) onMessageUpdate(ev *gateway.MessageUpdateEvent) {
 		return
 	}
 
-	msg, _ := s.discord.Cabinet.Message(ev.ChannelID, ev.ID)
+	msg, _ := s.State.Cabinet.Message(ev.ChannelID, ev.ID)
 	if msg == nil || !s.isValidMessage(msg) {
 		return
 	}
@@ -188,7 +188,7 @@ func (s *Session) sendMessageIDs(ctx context.Context, chID discord.ChannelID, id
 		return
 	}
 
-	channel, err := s.discord.Cabinet.Channel(chID)
+	channel, err := s.State.Cabinet.Channel(chID)
 	if err != nil {
 		logger.Error(
 			"failed to get channel for sending",
@@ -196,7 +196,7 @@ func (s *Session) sendMessageIDs(ctx context.Context, chID discord.ChannelID, id
 		return
 	}
 
-	guild, err := s.discord.Cabinet.Guild(channel.GuildID)
+	guild, err := s.State.Cabinet.Guild(channel.GuildID)
 	if channel.GuildID.IsValid() && err != nil {
 		logger.Error(
 			"failed to get guild for sending",
@@ -208,7 +208,7 @@ func (s *Session) sendMessageIDs(ctx context.Context, chID discord.ChannelID, id
 	// actually just grab the earliest ID in this list.
 	earliest := ids[0]
 
-	msgs, err := s.discord.Messages(chID, 100)
+	msgs, err := s.State.Messages(chID, 100)
 	if err != nil {
 		logger.Error(
 			"failed to get messages for sending",
@@ -227,7 +227,7 @@ func (s *Session) sendMessageIDs(ctx context.Context, chID discord.ChannelID, id
 	if nick, err := s.store.ChannelNickname(ctx, chID); err == nil {
 		name = nick
 	} else {
-		name = chName(channel, true)
+		name = ChannelName(channel, true)
 		if guild != nil {
 			name = fmt.Sprintf("%s in %s", name, guild.Name)
 		}
@@ -248,7 +248,7 @@ func (s *Session) sendMessageIDs(ctx context.Context, chID discord.ChannelID, id
 			fmt.Fprintf(&body, "%s:\n", msg.Author.DisplayOrUsername())
 		}
 
-		content := renderText(ctx, logger, s.discord, msg.Content, msg)
+		content := renderText(ctx, logger, s.State, msg.Content, msg)
 		body.WriteString(content)
 
 		if len(msg.Embeds) > 0 {
@@ -297,7 +297,9 @@ func filterSlice[T any](slice []T, filter func(T) bool) []T {
 	return filtered
 }
 
-func chName(ch *discord.Channel, short bool) string {
+// ChannelName returns the name of a channel, or a list of recipients if it's a
+// DM.
+func ChannelName(ch *discord.Channel, short bool) string {
 	if ch.Name != "" {
 		return ch.Name
 	}

@@ -84,6 +84,38 @@ func (q *Queries) ChannelNickname(ctx context.Context, arg ChannelNicknameParams
 	return nickname, err
 }
 
+const channelNicknames = `-- name: ChannelNicknames :many
+SELECT channel_id, nickname FROM channel_nicknames WHERE user_number = ?
+`
+
+type ChannelNicknamesRow struct {
+	ChannelID int64
+	Nickname  string
+}
+
+func (q *Queries) ChannelNicknames(ctx context.Context, userNumber string) ([]ChannelNicknamesRow, error) {
+	rows, err := q.db.QueryContext(ctx, channelNicknames, userNumber)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ChannelNicknamesRow
+	for rows.Next() {
+		var i ChannelNicknamesRow
+		if err := rows.Scan(&i.ChannelID, &i.Nickname); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const numberIsMuted = `-- name: NumberIsMuted :one
 SELECT muted FROM numbers_muted
 	WHERE user_number = ? AND (until = 0 OR until > NOW())

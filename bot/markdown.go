@@ -1,7 +1,6 @@
 package bot
 
 import (
-	"context"
 	"log/slog"
 	"strings"
 
@@ -12,7 +11,6 @@ import (
 )
 
 func renderText(
-	ctx context.Context,
 	logger *slog.Logger,
 	state *ningen.State, body string, srcMessage *discord.Message) string {
 

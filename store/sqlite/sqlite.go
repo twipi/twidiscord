@@ -149,6 +149,18 @@ func (s *accountStore) ChannelNickname(ctx context.Context, chID discord.Channel
 	return nickname, nil
 }
 
+func (s *accountStore) ChannelNicknames(ctx context.Context) (map[discord.ChannelID]string, error) {
+	rows, err := s.q.ChannelNicknames(ctx, string(s.account.UserNumber))
+	if err != nil {
+		return nil, sqliteErr(err)
+	}
+	nicknames := make(map[discord.ChannelID]string, len(rows))
+	for _, v := range rows {
+		nicknames[discord.ChannelID(v.ChannelID)] = v.Nickname
+	}
+	return nicknames, nil
+}
+
 func (s *accountStore) ChannelFromNickname(ctx context.Context, nickname string) (discord.ChannelID, error) {
 	id, err := s.q.ChannelFromNickname(ctx, queries.ChannelFromNicknameParams{
 		UserNumber: string(s.account.UserNumber),

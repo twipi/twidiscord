@@ -1,6 +1,32 @@
 name: "discord"
 description: "SMS Gateway for Discord"
 
+options_schema {
+  options {
+    id: "discord_token"
+    name: "Discord Token"
+    description: "The token for your Discord account. Do not touch this unless you have to!"
+    type {
+      string {
+        required: true
+        sensitive: true
+      }
+    }
+  }
+
+  options {
+    id: "nicknames"
+    name: "Channel Aliases"
+    description: "A list of channel aliases to use for messaging"
+    type {
+      string_list {
+        structuring: ["Alias", "Guild", "Channel"]
+        structuring_regex: "([^\t]*)\t([^\t]*)\t([^\t]*)"
+      }
+    }
+  }
+}
+
 commands {
   name: "message"
   description: "Send a message to a Discord channel"
