@@ -14,7 +14,7 @@ import (
 	"github.com/diamondburned/twidiscord/store"
 	"github.com/diamondburned/twidiscord/store/sqlite"
 	"github.com/spf13/pflag"
-	"github.com/twipi/twipi/twicmd/httpservice"
+	twicmdhttp "github.com/twipi/twipi/twicmd/http"
 	"github.com/twipi/twipi/twisms"
 	"golang.org/x/sync/errgroup"
 	"libdb.so/hserve"
@@ -131,7 +131,7 @@ func start(ctx context.Context, db store.Store, logger *slog.Logger) int {
 	svc := service.NewService(db, logger)
 	errg.Go(func() error { return svc.Start(ctx) })
 
-	handler := httpservice.NewHTTPServer(svc, logger.With("component", "http"))
+	handler := twicmdhttp.NewHandler(svc, logger.With("component", "http"))
 	errg.Go(func() error {
 		<-ctx.Done()
 		if err := handler.Close(); err != nil {

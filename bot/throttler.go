@@ -1,7 +1,9 @@
 package bot
 
 import (
+	"log/slog"
 	"sync"
+	"sync/atomic"
 	"time"
 
 	"github.com/diamondburned/arikawa/v3/discord"
@@ -10,15 +12,17 @@ import (
 
 type messageThrottlers struct {
 	throttlers *xsync.MapOf[discord.ChannelID, *messageThrottler]
+	logger     *slog.Logger
 	wg         sync.WaitGroup
 
 	send      func(discord.ChannelID, []discord.MessageID)
 	batchSize int
 }
 
-func newMessageThrottlers(batchSize int, send func(discord.ChannelID, []discord.MessageID)) *messageThrottlers {
+func newMessageThrottlers(batchSize int, logger *slog.Logger, send func(discord.ChannelID, []discord.MessageID)) *messageThrottlers {
 	return &messageThrottlers{
 		throttlers: xsync.NewMapOf[discord.ChannelID, *messageThrottler](),
+		logger:     logger,
 		send:       send,
 		batchSize:  batchSize,
 	}
@@ -33,12 +37,10 @@ func (ts *messageThrottlers) forChannel(id discord.ChannelID) *messageThrottler 
 
 type messageThrottler struct {
 	*messageThrottlers
-	queue   []discord.MessageID
+	stop atomic.Pointer[chan struct{}]
+
 	queueMu sync.Mutex
-	timer   struct {
-		sync.Mutex
-		reset chan time.Duration
-	}
+	queue   []discord.MessageID
 
 	chID discord.ChannelID
 }
@@ -53,17 +55,18 @@ func newMessageThrottler(ts *messageThrottlers, chID discord.ChannelID) *message
 // AddMessage adds a message to the queue. The message will be dispatched after
 // the delay time.
 func (t *messageThrottler) AddMessage(id discord.MessageID, delayDuration time.Duration) {
-	var overflow []discord.MessageID
-
 	t.queueMu.Lock()
+
 	// Check for overflowing queue. If we overflow, then we'll send them off
 	// right away.
+	var overflow []discord.MessageID
 	if len(t.queue) >= t.batchSize {
 		overflow = t.queue
 		t.queue = []discord.MessageID{id}
 	} else {
 		t.queue = append(t.queue, id)
 	}
+
 	t.queueMu.Unlock()
 
 	t.tryStartJob(delayDuration)
@@ -93,23 +96,16 @@ func (t *messageThrottler) DelaySending(delayDuration time.Duration) {
 }
 
 func (t *messageThrottler) tryStartJob(delay time.Duration) {
-	t.timer.Lock()
-	defer t.timer.Unlock()
-
-	if t.timer.reset == nil {
-		t.timer.reset = make(chan time.Duration, 1)
-	}
-
-	// Already started. Just send the delay over. We'll just try and send
-	// the duration, however if that doesn't immediately work, we'll just
-	// spawn a new goroutine to do our job.
-	select {
-	case t.timer.reset <- delay:
-		return
-	case <-t.timer.reset:
-		// If this case ever hits, then the worker is probably waiting for
-		// the mutex to unlock. We should be able to just spawn a new
-		// goroutine with the current delay.
+	stop := make(chan struct{}, 1)
+	if old := t.stop.Swap(&stop); old != nil {
+		// Stop the old job.
+		select {
+		case *old <- struct{}{}:
+			// The job has stopped.
+		default:
+			// Either the job is already stopped or it's busy doing something.
+			// We'll leave it alone and start a new job.
+		}
 	}
 
 	t.wg.Add(1)
@@ -117,13 +113,12 @@ func (t *messageThrottler) tryStartJob(delay time.Duration) {
 		defer t.wg.Done()
 
 		timer := time.NewTimer(delay)
+		defer timer.Stop()
+
 		for {
 			select {
-			case d := <-t.timer.reset:
-				if !timer.Stop() {
-					<-timer.C
-				}
-				timer.Reset(d)
+			case <-stop:
+				return
 
 			case <-timer.C:
 				// Steal the queue.

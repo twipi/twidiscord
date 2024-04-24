@@ -10,7 +10,7 @@ require (
 	github.com/sahilm/fuzzy v0.1.1
 	github.com/spf13/pflag v1.0.5
 	github.com/twipi/pubsub v0.0.0-20240419070506-7024f4e9981d
-	github.com/twipi/twipi v0.0.0-20240419060841-f9f583a9e34e
+	github.com/twipi/twipi v0.0.0-20240420112900-94c351cd0868
 	github.com/xhit/go-str2duration/v2 v2.1.0
 	github.com/yuin/goldmark v1.5.2
 	golang.org/x/sync v0.6.0
@@ -42,8 +42,8 @@ require (
 	golang.org/x/net v0.24.0 // indirect
 	golang.org/x/sys v0.19.0 // indirect
 	golang.org/x/time v0.5.0 // indirect
-	libdb.so/hrt v0.0.0-20230610032842-abf58de78776 // indirect
-	libdb.so/hrtproto v0.0.0-20240418200917-01082d47e355 // indirect
+	libdb.so/hrt v0.0.0-20240421082846-86ff8f6e2d0e // indirect
+	libdb.so/hrtproto v0.0.0-20240420095506-31b8f7cf483c // indirect
 	modernc.org/gc/v3 v3.0.0-20240107210532-573471604cb6 // indirect
 	modernc.org/libc v1.41.0 // indirect
 	modernc.org/mathutil v1.6.0 // indirect

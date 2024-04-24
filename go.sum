@@ -131,8 +131,8 @@ github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+
 github.com/stretchr/testify v1.4.0/go.mod h1:j7eGeouHqKxXV5pUuKE4zz7dFj8WfuZ+81PSLYec5m4=
 github.com/twipi/pubsub v0.0.0-20240419070506-7024f4e9981d h1:HaqshQiTTLvZMHhudCRa2Ii0AHV1iNrNt9THY1Kxd3A=
 github.com/twipi/pubsub v0.0.0-20240419070506-7024f4e9981d/go.mod h1:4m2fBPP4FdMX4WVEAtf73w39hSWljGrcVbrVanHYzMQ=
-github.com/twipi/twipi v0.0.0-20240419060841-f9f583a9e34e h1:Ek4o14/fmVmy+jo8q8IXGGVho9H4pHnfx5co7G/wpcw=
-github.com/twipi/twipi v0.0.0-20240419060841-f9f583a9e34e/go.mod h1:bNjo2UN3wL/QGHq9q7EeTgxv81iRBuzhgIwFiertCiA=
+github.com/twipi/twipi v0.0.0-20240420112900-94c351cd0868 h1:f3oCTrAzL/w8BhagCJkJ6SZxltBohliepatKif2RrPA=
+github.com/twipi/twipi v0.0.0-20240420112900-94c351cd0868/go.mod h1:bNjo2UN3wL/QGHq9q7EeTgxv81iRBuzhgIwFiertCiA=
 github.com/twmb/murmur3 v1.1.3/go.mod h1:Qq/R7NUyOfr65zD+6Q5IHKsJLwP7exErjN6lyyq3OSQ=
 github.com/twmb/murmur3 v1.1.8 h1:8Yt9taO/WN3l08xErzjeschgZU2QSrwm1kclYq+0aRg=
 github.com/twmb/murmur3 v1.1.8/go.mod h1:Qq/R7NUyOfr65zD+6Q5IHKsJLwP7exErjN6lyyq3OSQ=
@@ -336,10 +336,9 @@ honnef.co/go/tools v0.0.0-20190106161140-3f1c8253044a/go.mod h1:rf3lG4BRIbNafJWh
 honnef.co/go/tools v0.0.0-20190418001031-e561f6794a2a/go.mod h1:rf3lG4BRIbNafJWhAfAdb/ePZxsR/4RtNHQocxwk9r4=
 honnef.co/go/tools v0.0.0-20190523083050-ea95bdfd59fc/go.mod h1:rf3lG4BRIbNafJWhAfAdb/ePZxsR/4RtNHQocxwk9r4=
 honnef.co/go/tools v0.0.1-2019.2.3/go.mod h1:a3bituU0lyd329TUQxRnasdCoJDkEUEAqEt0JzvZhAg=
-libdb.so/hrt v0.0.0-20230610032842-abf58de78776 h1:nXNfGnVJBfgDcyK0WnV2eddf7iDuim3zIG0tAH7RYH0=
-libdb.so/hrt v0.0.0-20230610032842-abf58de78776/go.mod h1:bb65zhEyvKd/8UegarizeNQIXCLt+1TC7CYWIJWTfRQ=
-libdb.so/hrtproto v0.0.0-20240418200917-01082d47e355 h1:wWNpvfqcF67AgI2jnXgTA/mYF/FcfhPKYi03+Zqo83c=
-libdb.so/hrtproto v0.0.0-20240418200917-01082d47e355/go.mod h1:q3REQ4qhsNJ3JvV5gr0YPcuB6MD3eUe7/aBu2hf8HJk=
+libdb.so/hrt v0.0.0-20240421082846-86ff8f6e2d0e h1:1ynt4+D42fG32E0fQeWbCA7yjmsyVrseh8mOq8Hn4UI=
+libdb.so/hrtproto v0.0.0-20240420095506-31b8f7cf483c h1:SuPDsrYU4zp1cHmNoFiUxZqfO3Z+G55lCCzDZfCBjYk=
+libdb.so/hrtproto v0.0.0-20240420095506-31b8f7cf483c/go.mod h1:X+i3ikM6ry7h/oQVuBCsDoG9lkeh6leuPUbe/dUq6Bs=
 libdb.so/hserve v0.0.0-20230404043009-95e112a6e0a5 h1:EoO8WHF7uWQuvqBRgnt0wsvG9u7gOVllHBP7l2YOsAA=
 libdb.so/hserve v0.0.0-20230404043009-95e112a6e0a5/go.mod h1:ZGoXSA4bL8Czb67YFYN3Uiy7Hvind5RhMSQgU6k4sq8=
 libdb.so/lazymigrate v0.0.0-20240221022551-223d9b492a64 h1:wbSVcK/i1ZjEgKzBvXMwB79vFR20CS0wDCnkY3V4P50=
