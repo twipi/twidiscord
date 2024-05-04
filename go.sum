@@ -44,6 +44,8 @@ github.com/envoyproxy/go-control-plane v0.9.1-0.20191026205805-5f8ba28d4473/go.m
 github.com/envoyproxy/protoc-gen-validate v0.1.0/go.mod h1:iSmxcyjqTsJpI2R4NaDN7+kN2VEUnK/pcBlmesArF7c=
 github.com/go-chi/chi/v5 v5.0.8 h1:lD+NLqFcAi1ovnVZpsnObHGW4xb4J8lNmoYVfECH1Y0=
 github.com/go-chi/chi/v5 v5.0.8/go.mod h1:DslCQbL2OYiznFReuXYUmQ2hGd1aDpCnlMNITLSKoi8=
+github.com/go-chi/cors v1.2.1 h1:xEC8UT3Rlp2QuWNEr4Fs/c2EAGVKBwy/1vHx3bppil4=
+github.com/go-chi/cors v1.2.1/go.mod h1:sSbTewc+6wYHBBCW7ytsFSn836hqM7JxpglAy2Vzc58=
 github.com/go-gl/glfw v0.0.0-20190409004039-e6da0acd62b1/go.mod h1:vR7hzQXu2zJy9AVAgeJqvqgH9Q5CA+iKCZ2gyEVpxRU=
 github.com/go-gl/glfw/v3.3/glfw v0.0.0-20191125211704-12ad95a8df72/go.mod h1:tQ2UAYgL5IevRw8kRxooKSPJfGvJ9fJQFa0TUsXzTg8=
 github.com/golang/glog v0.0.0-20160126235308-23def4e6c14b/go.mod h1:SBH7ygxi8pfUlaOkMMuAQtPIUF8ecWP5IEl/CR7VP2Q=
@@ -131,8 +133,8 @@ github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+
 github.com/stretchr/testify v1.4.0/go.mod h1:j7eGeouHqKxXV5pUuKE4zz7dFj8WfuZ+81PSLYec5m4=
 github.com/twipi/pubsub v0.0.0-20240419070506-7024f4e9981d h1:HaqshQiTTLvZMHhudCRa2Ii0AHV1iNrNt9THY1Kxd3A=
 github.com/twipi/pubsub v0.0.0-20240419070506-7024f4e9981d/go.mod h1:4m2fBPP4FdMX4WVEAtf73w39hSWljGrcVbrVanHYzMQ=
-github.com/twipi/twipi v0.0.0-20240420112900-94c351cd0868 h1:f3oCTrAzL/w8BhagCJkJ6SZxltBohliepatKif2RrPA=
-github.com/twipi/twipi v0.0.0-20240420112900-94c351cd0868/go.mod h1:bNjo2UN3wL/QGHq9q7EeTgxv81iRBuzhgIwFiertCiA=
+github.com/twipi/twipi v0.0.0-20240429051258-480f1376ea42 h1:Kaqc93YDg9KVOO4C9n+cgN+AOLVR4dGDXWBZQJn0rVg=
+github.com/twipi/twipi v0.0.0-20240429051258-480f1376ea42/go.mod h1:adDMHhXcars+wzsolcV1aUuhX0WW8a+zdUDlDncMJGk=
 github.com/twmb/murmur3 v1.1.3/go.mod h1:Qq/R7NUyOfr65zD+6Q5IHKsJLwP7exErjN6lyyq3OSQ=
 github.com/twmb/murmur3 v1.1.8 h1:8Yt9taO/WN3l08xErzjeschgZU2QSrwm1kclYq+0aRg=
 github.com/twmb/murmur3 v1.1.8/go.mod h1:Qq/R7NUyOfr65zD+6Q5IHKsJLwP7exErjN6lyyq3OSQ=
@@ -336,7 +338,12 @@ honnef.co/go/tools v0.0.0-20190106161140-3f1c8253044a/go.mod h1:rf3lG4BRIbNafJWh
 honnef.co/go/tools v0.0.0-20190418001031-e561f6794a2a/go.mod h1:rf3lG4BRIbNafJWhAfAdb/ePZxsR/4RtNHQocxwk9r4=
 honnef.co/go/tools v0.0.0-20190523083050-ea95bdfd59fc/go.mod h1:rf3lG4BRIbNafJWhAfAdb/ePZxsR/4RtNHQocxwk9r4=
 honnef.co/go/tools v0.0.1-2019.2.3/go.mod h1:a3bituU0lyd329TUQxRnasdCoJDkEUEAqEt0JzvZhAg=
+libdb.so/ctxt v0.0.0-20240229093153-2db38a5d3c12 h1:Yhdfv7kODmi9SqvX8dEoglc3Mr+RvfYQp5GFKc+i7vk=
+libdb.so/ctxt v0.0.0-20240229093153-2db38a5d3c12/go.mod h1:t9e0qzm6W32lQDEmSND4oDsdtiJaerFvGA4g6L4e/aM=
 libdb.so/hrt v0.0.0-20240421082846-86ff8f6e2d0e h1:1ynt4+D42fG32E0fQeWbCA7yjmsyVrseh8mOq8Hn4UI=
+libdb.so/hrt v0.0.0-20240421082846-86ff8f6e2d0e/go.mod h1:bb65zhEyvKd/8UegarizeNQIXCLt+1TC7CYWIJWTfRQ=
+libdb.so/hrtclient v0.0.0-20240421080023-4dbf5f693ee7 h1:RhO78YeTiIaUy/6N4aoM8LMMhkOTpgshn08BZD6EJJM=
+libdb.so/hrtclient v0.0.0-20240421080023-4dbf5f693ee7/go.mod h1:GWN3MUQOhLfiJ7ALRqTpq8YabOyOfQ9CyaNUJHeQOVI=
 libdb.so/hrtproto v0.0.0-20240420095506-31b8f7cf483c h1:SuPDsrYU4zp1cHmNoFiUxZqfO3Z+G55lCCzDZfCBjYk=
 libdb.so/hrtproto v0.0.0-20240420095506-31b8f7cf483c/go.mod h1:X+i3ikM6ry7h/oQVuBCsDoG9lkeh6leuPUbe/dUq6Bs=
 libdb.so/hserve v0.0.0-20230404043009-95e112a6e0a5 h1:EoO8WHF7uWQuvqBRgnt0wsvG9u7gOVllHBP7l2YOsAA=

@@ -248,7 +248,7 @@ func (s *Session) sendMessageIDs(ctx context.Context, chID discord.ChannelID, id
 			fmt.Fprintf(&body, "%s:\n", msg.Author.DisplayOrUsername())
 		}
 
-		content := renderText(ctx, logger, s.State, msg.Content, msg)
+		content := renderText(logger, s.State, msg.Content, msg)
 		body.WriteString(content)
 
 		if len(msg.Embeds) > 0 {

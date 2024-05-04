@@ -1,18 +1,18 @@
 name: "discord"
+human_name: "Discord"
 description: "SMS Gateway for Discord"
 color: "#7289da"
 icon_url: "https://assets-global.website-files.com/6257adef93867e50d84d30e2/636e0a6a49cf127bf92de1e2_icon_clyde_blurple_RGB.png"
+website_url: "https://discord.com"
 
 options_schema {
   options {
     id: "discord_token"
     name: "Discord Token"
     description: "The token for your Discord account. Do not touch this unless you have to!"
-    type {
-      string {
-        required: true
-        sensitive: true
-      }
+    string {
+      required: true
+      sensitive: true
     }
   }
 
@@ -20,11 +20,9 @@ options_schema {
     id: "nicknames"
     name: "Channel Aliases"
     description: "A list of channel aliases to use for messaging"
-    type {
-      string_list {
-        structuring: ["Alias", "Guild", "Channel"]
-        structuring_regex: "([^\t]*)\t([^\t]*)\t([^\t]*)"
-      }
+    string_list {
+      structuring_separator: "	"
+      structuring_columns: ["Alias", "Guild", "Channel"]
     }
   }
 }

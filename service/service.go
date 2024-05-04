@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"math"
 
 	_ "embed"
 
@@ -210,9 +211,13 @@ func (s *Service) SendMessage(ctx context.Context, msg *twismsproto.Message) err
 	}
 }
 
+func (s *Service) SendingNumber() (string, float64) {
+	return "", math.Inf(+1)
+}
+
 // ConfigurationValues implements [twicmd.ConfigurableService].
 func (s *Service) ConfigurationValues(ctx context.Context, req *twicmdcfgpb.OptionsRequest) (*twicmdcfgpb.OptionsResponse, error) {
-	values := make([]*twicmdcfgpb.OptionValue, 0)
+	values := make([]*twicmdcfgpb.OptionValue, 0, len(optionFuncs))
 	for _, opt := range optionFuncs {
 		v, err := opt(s, ctx, req.PhoneNumber)
 		if err != nil {

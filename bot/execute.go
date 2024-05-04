@@ -75,7 +75,7 @@ func (s *Session) executeNick(ctx context.Context, req *twicmdproto.ExecuteReque
 
 	response := fmt.Sprintf(
 		"Set %q to channel %q.",
-		args["nickname"], chName(r.Channel, true))
+		args["nickname"], ChannelName(r.Channel, true))
 	return twicmd.TextResponse(response)
 }
 
@@ -96,7 +96,7 @@ func (s *Session) executeGuildNick(ctx context.Context, req *twicmdproto.Execute
 
 	response := fmt.Sprintf(
 		"Set %q to channel %q in guild %q.",
-		args["nickname"], chName(r.Channel, true), r.Guild.Name)
+		args["nickname"], ChannelName(r.Channel, true), r.Guild.Name)
 	return twicmd.TextResponse(response)
 }
 
@@ -165,7 +165,7 @@ func (s *Session) executeNotifications(_ context.Context, req *twicmdproto.Execu
 	var buf strings.Builder
 	fmt.Fprintf(&buf, "You have %d unread channels:\n", len(unreads))
 	for _, unread := range unreads {
-		fmt.Fprintf(&buf, "%s (%d)\n", chName(&unread.Channel, true), unread.UnreadCount)
+		fmt.Fprintf(&buf, "%s (%d)\n", ChannelName(&unread.Channel, true), unread.UnreadCount)
 	}
 	return twicmd.TextResponse(buf.String())
 }

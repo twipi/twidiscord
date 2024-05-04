@@ -120,7 +120,7 @@ func (c fuzzyChannels) Len() int {
 }
 
 func (c fuzzyChannels) String(i int) string {
-	return chName(&c[i], false)
+	return ChannelName(&c[i], false)
 }
 
 func bestFuzzyMatch(matches []fuzzy.Match) (fuzzy.Match, bool) {

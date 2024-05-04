@@ -24,10 +24,12 @@ func (s *Service) optionDiscordToken(ctx context.Context, phoneNumber string) (*
 		return nil, fmt.Errorf("no account found")
 	}
 
+	censoredToken := strings.Repeat("*", len(account.Account().DiscordToken))
+
 	return &twicmdcfgpb.OptionValue{
 		Id: "discord_token",
 		Value: &twicmdcfgpb.OptionValue_String_{
-			String_: account.Account().DiscordToken,
+			String_: censoredToken,
 		},
 	}, nil
 }
@@ -94,6 +96,8 @@ func (s *Service) optionNicknames(ctx context.Context, phoneNumber string) (*twi
 				}
 			}
 		}
+
+		channels = append(channels, item)
 	}
 
 	slices.SortFunc(channels, func(a, b channelNickItem) int {
