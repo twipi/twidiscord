@@ -144,18 +144,18 @@ func (i channelNickItem) itemString() string {
 	var s strings.Builder
 	s.WriteString(i.Nickname)
 	s.WriteByte('\t')
-	if i.Channel != nil {
-		s.WriteString(bot.ChannelName(i.Channel, true))
-	} else {
-		s.WriteString(i.ChannelID.String())
-	}
-	s.WriteByte('\t')
 	if i.Guild != nil {
 		s.WriteString(i.Guild.Name)
 	} else if i.Channel != nil && !i.Channel.GuildID.IsValid() {
 		s.WriteString("")
 	} else {
 		s.WriteString("?")
+	}
+	s.WriteByte('\t')
+	if i.Channel != nil {
+		s.WriteString(bot.ChannelName(i.Channel, true))
+	} else {
+		s.WriteString(i.ChannelID.String())
 	}
 	return s.String()
 }
