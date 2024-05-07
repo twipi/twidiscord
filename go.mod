@@ -1,4 +1,4 @@
-module github.com/diamondburned/twidiscord
+module github.com/twipi/twidiscord
 
 go 1.22.0
 
@@ -10,7 +10,7 @@ require (
 	github.com/sahilm/fuzzy v0.1.1
 	github.com/spf13/pflag v1.0.5
 	github.com/twipi/pubsub v0.0.0-20240419070506-7024f4e9981d
-	github.com/twipi/twipi v0.0.0-20240429051258-480f1376ea42
+	github.com/twipi/twipi v0.0.0-20240507090021-c01fb8b75798
 	github.com/xhit/go-str2duration/v2 v2.1.0
 	github.com/yuin/goldmark v1.5.2
 	golang.org/x/sync v0.6.0

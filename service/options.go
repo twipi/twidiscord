@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/diamondburned/arikawa/v3/discord"
-	"github.com/diamondburned/twidiscord/bot"
+	"github.com/twipi/twidiscord/bot"
 	"github.com/twipi/twipi/proto/out/twicmdcfgpb"
 )
 

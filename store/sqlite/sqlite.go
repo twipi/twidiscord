@@ -8,8 +8,8 @@ import (
 	_ "embed"
 
 	"github.com/diamondburned/arikawa/v3/discord"
-	"github.com/diamondburned/twidiscord/store"
-	"github.com/diamondburned/twidiscord/store/sqlite/queries"
+	"github.com/twipi/twidiscord/store"
+	"github.com/twipi/twidiscord/store/sqlite/queries"
 	"github.com/pkg/errors"
 	"libdb.so/lazymigrate"
 

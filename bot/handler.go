@@ -11,7 +11,7 @@ import (
 	"github.com/diamondburned/arikawa/v3/discord"
 	"github.com/diamondburned/arikawa/v3/gateway"
 	"github.com/diamondburned/ningen/v3"
-	"github.com/diamondburned/twidiscord/store"
+	"github.com/twipi/twidiscord/store"
 	"github.com/twipi/twipi/twisms"
 )
 

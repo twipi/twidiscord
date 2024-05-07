@@ -10,9 +10,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/diamondburned/twidiscord/service"
-	"github.com/diamondburned/twidiscord/store"
-	"github.com/diamondburned/twidiscord/store/sqlite"
+	"github.com/twipi/twidiscord/service"
+	"github.com/twipi/twidiscord/store"
+	"github.com/twipi/twidiscord/store/sqlite"
 	"github.com/spf13/pflag"
 	twicmdhttp "github.com/twipi/twipi/twicmd/http"
 	"github.com/twipi/twipi/twisms"

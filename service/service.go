@@ -8,8 +8,8 @@ import (
 
 	_ "embed"
 
-	"github.com/diamondburned/twidiscord/bot"
-	"github.com/diamondburned/twidiscord/store"
+	"github.com/twipi/twidiscord/bot"
+	"github.com/twipi/twidiscord/store"
 	"github.com/pkg/errors"
 	"github.com/puzpuzpuz/xsync/v3"
 	"github.com/twipi/pubsub"
