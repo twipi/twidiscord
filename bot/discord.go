@@ -152,7 +152,7 @@ func (s *Session) onMessageUpdate(ev *gateway.MessageUpdateEvent) {
 	}
 
 	msg, _ := s.State.Cabinet.Message(ev.ChannelID, ev.ID)
-	if msg == nil || !s.isValidMessage(msg) {
+	if msg == nil || !s.isValidMessage(&ev.Message) {
 		return
 	}
 
@@ -178,6 +178,32 @@ func (s *Session) onTypingStart(ev *gateway.TypingStartEvent) {
 		"channel_id", ev.ChannelID)
 }
 
+func (s *Session) shouldSend(ctx context.Context, chID discord.ChannelID) bool {
+	logger := s.logger.With(*s.logAttrs.Load())
+
+	// Check if we're muted or if we have any existing Discord sessions.
+	if s.hasOtherSessions() {
+		logger.Debug(
+			"skipping sending messages because there are other sessions")
+		return false
+	}
+
+	if s.store.NumberIsMuted(ctx) {
+		logger.Debug(
+			"skipping sending messages because the number is muted")
+		return false
+	}
+
+	if !s.isValidChannel(chID) {
+		logger.Debug(
+			"skipping sending messages because the channel is muted",
+			"channel_id", chID)
+		return false
+	}
+
+	return true
+}
+
 func (s *Session) sendMessageIDs(ctx context.Context, chID discord.ChannelID, ids []discord.MessageID) {
 	logger := s.logger.
 		With(*s.logAttrs.Load()).
@@ -186,25 +212,11 @@ func (s *Session) sendMessageIDs(ctx context.Context, chID discord.ChannelID, id
 			"message_ids", ids)
 
 	if len(ids) == 0 {
+		logger.Debug("sending messages but there are no messages")
 		return
 	}
 
-	if !s.isValidChannel(chID) {
-		logger.Debug(
-			"skipping sending messages because the channel is muted")
-		return
-	}
-
-	// Check if we're muted or if we have any existing Discord sessions.
-	if s.hasOtherSessions() {
-		logger.Debug(
-			"skipping sending messages because there are other sessions")
-		return
-	}
-
-	if s.store.NumberIsMuted(ctx) {
-		logger.Debug(
-			"skipping sending messages because the number is muted")
+	if !s.shouldSend(ctx, chID) {
 		return
 	}
 
@@ -301,6 +313,12 @@ func (s *Session) sendMessageIDs(ctx context.Context, chID discord.ChannelID, id
 			Text: &twismsproto.TextBody{Text: bodyFinal},
 		},
 	}
+
+	s.logger.Debug(
+		"sending SMS",
+		"from", message.From,
+		"to", message.To,
+		"body", bodyFinal)
 
 	if err := s.sms.SendMessage(ctx, message); err != nil {
 		logger.Error(

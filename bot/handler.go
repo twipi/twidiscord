@@ -89,7 +89,8 @@ func (s *Session) Start(ctx context.Context) error {
 	s.State = s.State.WithContext(ctx)
 	s.bindDiscord()
 
-	s.throttlers = newMessageThrottlers(15,
+	s.throttlers = newMessageThrottlers(
+		15,
 		s.logger.With("component", "message_throttler"),
 		func(chID discord.ChannelID, ids []discord.MessageID) {
 			s.sendMessageIDs(ctx, chID, ids)

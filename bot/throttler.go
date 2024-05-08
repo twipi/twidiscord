@@ -101,10 +101,9 @@ func (t *messageThrottler) tryStartJob(delay time.Duration) {
 		// Stop the old job.
 		select {
 		case *old <- struct{}{}:
-			// The job has stopped.
+			t.logger.Debug("stopped throttler job")
 		default:
-			// Either the job is already stopped or it's busy doing something.
-			// We'll leave it alone and start a new job.
+			t.logger.Debug("throttler job is already stopped, starting a new job")
 		}
 	}
 
@@ -114,6 +113,11 @@ func (t *messageThrottler) tryStartJob(delay time.Duration) {
 
 		timer := time.NewTimer(delay)
 		defer timer.Stop()
+
+		t.logger.Debug(
+			"started throttler job",
+			"channel_id", t.chID,
+			"delay", delay)
 
 		for {
 			select {
@@ -126,6 +130,11 @@ func (t *messageThrottler) tryStartJob(delay time.Duration) {
 				queue := t.queue
 				t.queue = nil
 				t.queueMu.Unlock()
+
+				t.logger.Debug(
+					"sending queued messages",
+					"channel_id", t.chID,
+					"message_ids", queue)
 
 				// Do the action.
 				t.send(t.chID, queue)
