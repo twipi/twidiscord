@@ -10,10 +10,10 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/spf13/pflag"
 	"github.com/twipi/twidiscord/service"
 	"github.com/twipi/twidiscord/store"
 	"github.com/twipi/twidiscord/store/sqlite"
-	"github.com/spf13/pflag"
 	twicmdhttp "github.com/twipi/twipi/twicmd/http"
 	"github.com/twipi/twipi/twisms"
 	"golang.org/x/sync/errgroup"
@@ -56,6 +56,7 @@ func main() {
 		ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt)
 		defer cancel()
 
+		slog.SetLogLoggerLevel(slog.LevelDebug)
 		logger := slog.Default()
 
 		db, err := sqlite.New(ctx, sqlitePath)

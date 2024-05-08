@@ -139,6 +139,11 @@ func (s *Session) onMessageCreate(ev *gateway.MessageCreateEvent) {
 
 	throttler := s.throttlers.forChannel(ev.ChannelID)
 	throttler.AddMessage(ev.ID, 5*time.Second)
+
+	s.logger.With(*s.logAttrs.Load()).Debug(
+		"queued message for sending",
+		"channel_id", ev.ChannelID,
+		"message_id", ev.ID)
 }
 
 func (s *Session) onMessageUpdate(ev *gateway.MessageUpdateEvent) {
@@ -153,6 +158,11 @@ func (s *Session) onMessageUpdate(ev *gateway.MessageUpdateEvent) {
 
 	throttler := s.throttlers.forChannel(ev.ChannelID)
 	throttler.AddMessage(ev.ID, 5*time.Second)
+
+	s.logger.With(*s.logAttrs.Load()).Debug(
+		"queued updated message for sending",
+		"channel_id", ev.ChannelID,
+		"message_id", ev.ID)
 }
 
 func (s *Session) onTypingStart(ev *gateway.TypingStartEvent) {
@@ -162,16 +172,26 @@ func (s *Session) onTypingStart(ev *gateway.TypingStartEvent) {
 
 	throttler := s.throttlers.forChannel(ev.ChannelID)
 	throttler.DelaySending(10 * time.Second)
+
+	s.logger.With(*s.logAttrs.Load()).Debug(
+		"delayed sending for channel by another 10 seconds",
+		"channel_id", ev.ChannelID)
 }
 
 func (s *Session) sendMessageIDs(ctx context.Context, chID discord.ChannelID, ids []discord.MessageID) {
-	logger := s.logger.With(*s.logAttrs.Load())
+	logger := s.logger.
+		With(*s.logAttrs.Load()).
+		With(
+			"channel_id", chID,
+			"message_ids", ids)
 
 	if len(ids) == 0 {
 		return
 	}
 
 	if !s.isValidChannel(chID) {
+		logger.Debug(
+			"skipping sending messages because the channel is muted")
 		return
 	}
 
@@ -220,6 +240,8 @@ func (s *Session) sendMessageIDs(ctx context.Context, chID discord.ChannelID, id
 		return msg.ID >= earliest && s.isValidMessage(&msg)
 	})
 	if len(msgs) == 0 {
+		logger.Debug(
+			"skipping sending messages because there are no valid messages")
 		return
 	}
 
